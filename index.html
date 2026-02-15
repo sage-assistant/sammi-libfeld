@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samanthus Libfeldius — A Nature Documentary Field Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Sans+3:wght@300;400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--parchment:#f5f0e1;--parchment-dark:#e8e0cc;--green-deep:#2d4a2e;--green-mid:#4a7c59;--green-light:#6b9b7a;--green-pale:#a8c5b2;
+--brown:#5c3d2e;--brown-light:#8b6f5e;--gold:#c9a84c;--gold-light:#e0c97f;--red-muted:#8b3a3a;
+--serif:'Playfair Display',Georgia,serif;--sans:'Source Sans 3','Segoe UI',sans-serif;--mono:'Special Elite',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--parchment);color:#2a2a2a;overflow-x:hidden;line-height:1.6}
+/* Film grain overlay */
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ENTRY SCREEN */
+#entry{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 1.2s ease,visibility 1.2s ease}
+#entry.dismissed{opacity:0;visibility:hidden;pointer-events:none}
+#entry .bars{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.entry-line{color:#d4c9a8;font-family:var(--serif);text-align:center;opacity:0;transform:translateY(20px);animation:fadeUp .8s ease forwards}
+.entry-line:nth-child(1){font-size:clamp(.7rem,1.5vw,.9rem);letter-spacing:.4em;text-transform:uppercase;color:var(--gold);animation-delay:.5s}
+.entry-line:nth-child(2){font-size:clamp(1rem,2.5vw,1.3rem);margin-top:2rem;font-style:italic;max-width:500px;line-height:1.5;animation-delay:1.5s}
+.entry-line:nth-child(3){font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-top:2rem;animation-delay:3s;letter-spacing:.05em}
+.entry-line:nth-child(4){font-size:clamp(.8rem,1.5vw,1rem);font-style:italic;margin-top:.5rem;color:var(--gold-light);animation-delay:4s}
+.entry-line:nth-child(5){margin-top:3rem;animation-delay:5.5s}
+.enter-btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.8rem 2.5rem;font-family:var(--serif);font-size:1rem;cursor:pointer;letter-spacing:.2em;text-transform:uppercase;transition:all .3s ease}
+.enter-btn:hover{background:var(--gold);color:#111}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;width:100%;z-index:5000;background:rgba(45,74,46,.95);backdrop-filter:blur(8px);padding:.6rem 2rem;display:flex;align-items:center;justify-content:space-between;transform:translateY(-100%);transition:transform .4s ease}
+nav.visible{transform:translateY(0)}
+nav .logo{font-family:var(--serif);color:var(--parchment);font-size:.9rem;font-weight:700;letter-spacing:.1em}
+nav .nav-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+nav .nav-links a{color:var(--green-pale);text-decoration:none;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;transition:color .2s}
+nav .nav-links a:hover{color:var(--gold)}
+@media(max-width:768px){nav .nav-links{display:none}}
+
+/* SECTIONS */
+section{padding:5rem 1.5rem;max-width:960px;margin:0 auto;opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+section.revealed{opacity:1;transform:translateY(0)}
+.section-label{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:var(--green-mid);margin-bottom:.5rem}
+h2{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.8rem);color:var(--green-deep);margin-bottom:1.5rem;line-height:1.2}
+h3{font-family:var(--serif);font-size:1.3rem;color:var(--brown);margin-bottom:.8rem}
+p{margin-bottom:1rem;font-size:1.05rem;color:#3a3a3a}
+
+/* TAXONOMY */
+.taxonomy-table{background:white;border:2px solid var(--green-deep);border-radius:4px;overflow:hidden;max-width:600px;margin:2rem auto}
+.taxonomy-row{display:flex;border-bottom:1px solid var(--parchment-dark)}
+.taxonomy-row:last-child{border-bottom:none}
+.taxonomy-rank{flex:0 0 140px;padding:.7rem 1rem;font-family:var(--serif);font-weight:700;font-size:.9rem;color:var(--green-deep);background:var(--parchment)}
+.taxonomy-val{flex:1;padding:.7rem 1rem;font-style:italic;font-size:.95rem}
+.taxonomy-val.species-name{font-weight:700;color:var(--green-deep);font-size:1.05rem}
+.discovery-note{text-align:center;margin-top:1.5rem;font-family:var(--mono);font-size:.85rem;color:var(--brown-light)}
+
+/* HABITAT SPLIT */
+.habitat-split{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:2rem 0}
+@media(max-width:700px){.habitat-split{grid-template-columns:1fr}}
+.habitat-card{background:white;border-radius:6px;padding:2rem;border-left:4px solid var(--green-mid);position:relative;overflow:hidden}
+.habitat-card.estate{border-left-color:var(--gold)}
+.habitat-card h3{display:flex;align-items:center;gap:.5rem}
+.habitat-icon{width:28px;height:28px;flex-shrink:0}
+.habitat-card ul{list-style:none;padding:0}
+.habitat-card li{padding:.4rem 0;font-size:.95rem;padding-left:1.2rem;position:relative}
+.habitat-card li::before{content:"\25B8";position:absolute;left:0;color:var(--green-mid)}
+.habitat-card.estate li::before{color:var(--gold)}
+.habitat-bridge{text-align:center;margin:2rem 0;padding:1.5rem;background:var(--green-deep);color:var(--parchment);border-radius:6px;font-family:var(--serif);font-style:italic;font-size:1.1rem}
+
+/* FIELD NOTES */
+.field-note{background:white;border-radius:6px;padding:1.5rem 2rem;margin:1.5rem 0;border-left:3px solid var(--brown-light);position:relative}
+.field-note::before{content:'FIELD NOTE';position:absolute;top:-10px;left:1rem;background:var(--parchment);padding:0 .5rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.2em;color:var(--brown-light)}
+.field-note .timestamp{font-family:var(--mono);font-size:.75rem;color:var(--brown-light);margin-bottom:.5rem}
+.field-note .observation{font-style:italic;line-height:1.7}
+.field-note .researcher{text-align:right;margin-top:.8rem;font-size:.85rem;color:var(--green-mid);font-weight:600}
+
+/* MIGRATION TIMELINE */
+.migration-path{position:relative;padding-left:3rem;margin:2rem 0}
+.migration-path::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--green-mid),var(--gold))}
+.migration-stop{position:relative;margin-bottom:2.5rem;opacity:0;transform:translateX(-20px);transition:all .6s ease}
+.migration-stop.revealed{opacity:1;transform:translateX(0)}
+.migration-dot{position:absolute;left:-3rem;top:.3rem;width:28px;height:28px;background:var(--green-mid);border-radius:50%;border:3px solid white;box-shadow:0 0 0 2px var(--green-mid);display:flex;align-items:center;justify-content:center}
+.migration-dot svg{width:14px;height:14px;fill:white}
+.migration-stop:last-child .migration-dot{background:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.migration-year{font-family:var(--mono);font-size:.8rem;color:var(--green-mid);letter-spacing:.1em}
+.migration-place{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--green-deep);margin:.2rem 0}
+.migration-desc{font-size:.95rem;color:#555}
+
+/* ADAPTATIONS */
+.adaptations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin:2rem 0}
+.adaptation-card{background:white;padding:1.5rem;border-radius:6px;text-align:center;border-top:3px solid var(--green-mid);transition:transform .3s ease}
+.adaptation-card:hover{transform:translateY(-4px)}
+.adaptation-icon{width:48px;height:48px;margin:0 auto 1rem;background:var(--green-pale);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.adaptation-icon svg{width:24px;height:24px;fill:var(--green-deep)}
+.adaptation-card h4{font-family:var(--serif);font-size:1.05rem;color:var(--green-deep);margin-bottom:.5rem}
+.adaptation-card p{font-size:.9rem;color:#555;margin:0}
+
+/* THREATS */
+.threat-item{display:flex;gap:1.5rem;align-items:flex-start;margin:1.5rem 0;padding:1.5rem;background:white;border-radius:6px;border-left:4px solid var(--red-muted)}
+.threat-level{flex-shrink:0;width:70px;text-align:center}
+.threat-level .level{font-family:var(--serif);font-weight:900;font-size:1.8rem;color:var(--red-muted)}
+.threat-level .label{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--brown-light)}
+.threat-info h4{font-family:var(--serif);color:var(--brown);font-size:1.1rem;margin-bottom:.3rem}
+.threat-info p{font-size:.9rem;margin:0;color:#555}
+
+/* CONSERVATION */
+.conservation-box{background:var(--green-deep);color:var(--parchment);padding:3rem;border-radius:8px;text-align:center;margin:2rem 0}
+.conservation-status{display:inline-block;border:3px solid var(--gold);padding:1rem 3rem;margin:1.5rem 0;font-family:var(--serif);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:900;color:var(--gold);letter-spacing:.05em}
+.conservation-box p{color:var(--green-pale);max-width:600px;margin:1rem auto}
+.population-stats{display:flex;justify-content:center;gap:3rem;margin-top:2rem;flex-wrap:wrap}
+.pop-stat{text-align:center}
+.pop-stat .num{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--gold)}
+.pop-stat .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--green-pale)}
+
+/* TESTIMONIALS */
+.testimonial{margin:2rem 0;padding:2rem;background:white;border-radius:6px;position:relative}
+.testimonial::before{content:open-quote;font-family:var(--serif);font-size:4rem;color:var(--green-pale);position:absolute;top:.5rem;left:1rem;line-height:1}
+.testimonial blockquote{font-style:italic;font-size:1.05rem;line-height:1.7;padding-left:2rem;margin-bottom:1rem;color:#3a3a3a}
+.testimonial cite{display:block;text-align:right;font-style:normal;font-size:.85rem;color:var(--green-mid);font-weight:600}
+
+/* INTERACTIVE: SPECIMEN TRACKER */
+.tracker-box{background:var(--green-deep);border-radius:8px;padding:2rem;margin:2rem 0;color:var(--parchment)}
+.tracker-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem}
+.tracker-header h3{color:var(--gold);margin:0;font-family:var(--serif)}
+.tracker-status{font-family:var(--mono);font-size:.75rem;color:var(--green-pale)}
+.tracker-visual{display:flex;align-items:center;gap:1rem;margin:1rem 0;flex-wrap:wrap;justify-content:center}
+.tracker-loc{flex:1;min-width:140px;text-align:center;padding:1.5rem 1rem;border-radius:6px;background:rgba(255,255,255,.05);border:2px solid transparent;transition:all .4s ease}
+.tracker-loc.active{border-color:var(--gold);background:rgba(201,168,76,.1)}
+.tracker-loc .icon{font-size:2rem;margin-bottom:.5rem;font-family:var(--serif)}
+.tracker-loc .name{font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;color:var(--green-pale)}
+.tracker-arrow{font-size:1.5rem;color:var(--gold);transition:transform .4s ease}
+.tracker-arrow.flip{transform:scaleX(-1)}
+.tracker-log{margin-top:1rem;font-family:var(--mono);font-size:.75rem;color:var(--green-pale);max-height:100px;overflow-y:auto}
+.tracker-log p{margin:.3rem 0}
+
+/* INTERACTIVE: FIELD NOTES GENERATOR */
+.generator-box{background:white;border:2px solid var(--green-mid);border-radius:8px;padding:2rem;margin:2rem 0}
+.generator-box h3{color:var(--green-deep);font-family:var(--serif)}
+.generator-input{width:100%;padding:.8rem 1rem;border:1px solid var(--parchment-dark);border-radius:4px;font-family:var(--sans);font-size:1rem;margin:1rem 0;resize:none}
+.generator-input:focus{outline:none;border-color:var(--green-mid)}
+.gen-btn{background:var(--green-deep);color:var(--parchment);border:none;padding:.7rem 2rem;border-radius:4px;font-family:var(--serif);font-size:.95rem;cursor:pointer;transition:background .3s}
+.gen-btn:hover{background:var(--green-mid)}
+.gen-output{margin-top:1.5rem;padding:1.5rem;background:var(--parchment);border-radius:4px;font-style:italic;display:none;line-height:1.7;border-left:3px solid var(--green-mid)}
+
+/* INTERACTIVE: QUIZ */
+.quiz-box{background:var(--parchment-dark);border-radius:8px;padding:2rem;margin:2rem 0}
+.quiz-box h3{font-family:var(--serif);color:var(--green-deep);margin-bottom:.5rem}
+.quiz-prompt{font-style:italic;font-size:1.1rem;margin:1.5rem 0;padding:1.5rem;background:white;border-radius:6px;text-align:center;line-height:1.6;min-height:80px}
+.quiz-buttons{display:flex;gap:1rem;justify-content:center;margin:1rem 0;flex-wrap:wrap}
+.quiz-btn{padding:.7rem 2rem;border:2px solid var(--green-deep);background:white;font-family:var(--serif);font-size:.95rem;border-radius:4px;cursor:pointer;transition:all .3s;min-width:160px}
+.quiz-btn:hover{background:var(--green-deep);color:white}
+.quiz-btn.correct{background:var(--green-mid);color:white;border-color:var(--green-mid)}
+.quiz-btn.wrong{background:var(--red-muted);color:white;border-color:var(--red-muted)}
+.quiz-result{text-align:center;margin-top:1rem;font-family:var(--serif);font-size:1rem;min-height:1.5rem}
+.quiz-score{text-align:center;font-family:var(--mono);font-size:.8rem;color:var(--brown-light);margin-top:.5rem}
+.quiz-nav{text-align:center;margin-top:1rem}
+.quiz-nav button{background:none;border:1px solid var(--green-mid);color:var(--green-mid);padding:.4rem 1.5rem;border-radius:4px;font-family:var(--serif);cursor:pointer;font-size:.85rem}
+.quiz-nav button:hover{background:var(--green-mid);color:white}
+
+/* CLOSING */
+.closing-card{background:#111;color:var(--parchment);padding:4rem 2rem;text-align:center;margin:0 -1.5rem;margin-bottom:-5rem}
+.closing-card .closing-line{font-family:var(--serif);font-style:italic;font-size:clamp(1rem,2.5vw,1.3rem);max-width:600px;margin:0 auto 1.5rem;line-height:1.6;color:#bbb}
+.closing-card .closing-main{font-family:var(--serif);font-size:clamp(1.2rem,3vw,1.6rem);color:var(--gold);margin-bottom:2rem;font-weight:700}
+.closing-card .closing-small{font-size:.8rem;color:#666;font-family:var(--mono);letter-spacing:.1em}
+
+/* HIDDEN EASTER EGG */
+.secret-dossier{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border:3px solid var(--gold);border-radius:8px;padding:2rem;z-index:6000;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.secret-dossier.show{display:block;animation:fadeUp .4s ease}
+.secret-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:5999}
+.secret-overlay.show{display:block}
+.secret-dossier h3{font-family:var(--serif);color:var(--green-deep)}
+.secret-dossier p{font-size:.9rem;color:#555;margin:.5rem 0}
+.secret-close{margin-top:1rem;background:var(--green-deep);color:white;border:none;padding:.5rem 1.5rem;border-radius:4px;cursor:pointer;font-family:var(--serif)}
+
+/* Footer */
+footer{text-align:center;padding:2rem;font-size:.75rem;color:#999;font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<!-- ENTRY SCREEN -->
+<div id="entry">
+<div class="bars">
+<div class="entry-line">Viewer Discretion Advised</div>
+<div class="entry-line">The following documentary contains footage of an extraordinary specimen. Viewer amazement is expected. Emotional responses have been documented in 97.3% of test audiences.</div>
+<div class="entry-line">Samanthus Libfeldius</div>
+<div class="entry-line">A Field Guide to the World's Most Remarkable Species</div>
+<div class="entry-line"><button class="enter-btn" onclick="dismissEntry()">Begin Observation</button></div>
+</div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+<div class="logo">S. Libfeldius &mdash; Field Guide</div>
+<div class="nav-links">
+<a href="#classification">Classification</a>
+<a href="#habitat">Habitat</a>
+<a href="#behavior">Behavior</a>
+<a href="#migration">Migration</a>
+<a href="#adaptations">Adaptations</a>
+<a href="#threats">Threats</a>
+<a href="#conservation">Conservation</a>
+</div>
+</nav>
+
+<!-- SPECIES CLASSIFICATION -->
+<section id="classification">
+<div class="section-label">Section I &mdash; Taxonomic Record</div>
+<h2>Species Classification</h2>
+<p>First formally described in 2011 by researchers at the University of Western Ontario, <em>Samanthus Libfeldius</em> immediately defied conventional taxonomic categories. No existing classification system could account for a specimen equally at home in a clinical research facility and a multi-billion-dollar real estate dynasty.</p>
+<div class="taxonomy-table">
+<div class="taxonomy-row"><div class="taxonomy-rank">Kingdom</div><div class="taxonomy-val">Achievia</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Phylum</div><div class="taxonomy-val">Hustlata</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Class</div><div class="taxonomy-val">Clinical Trialia</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Order</div><div class="taxonomy-val">Real Estaticus</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Family</div><div class="taxonomy-val">Libfeldidae</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Genus</div><div class="taxonomy-val">Samanthus</div></div>
+<div class="taxonomy-row"><div class="taxonomy-rank">Species</div><div class="taxonomy-val species-name">S. libfeldius</div></div>
+</div>
+<div class="discovery-note">First described: 2011, Schulich School of Medicine &amp; Dentistry &bull; Type locality: London, Ontario &bull; Status: EXTANT (thriving)</div>
+<p style="margin-top:2rem">Notably, the Libfeldidae family is one of the most studied dynasties in Canadian residential development, having constructed over 75,000 dwelling units across the Greater Toronto Area. The subject's integration into this lineage via pair-bonding represents one of the most remarkable adaptive events observed in modern behavioral science.</p>
+</section>
+
+<!-- HABITAT ANALYSIS -->
+<section id="habitat">
+<div class="section-label">Section II &mdash; Habitat Analysis</div>
+<h2>Dual-Habitat Phenomenon</h2>
+<p>Perhaps the most extraordinary feature of <em>S. libfeldius</em> is her ability to thrive in two radically different ecosystems. Biologists have termed this "extreme habitat duality" &mdash; a trait previously thought impossible in a single organism.</p>
+<div class="habitat-split">
+<div class="habitat-card">
+<h3>
+<svg class="habitat-icon" viewBox="0 0 24 24"><path fill="#4a7c59" d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+The Clinical Research Laboratory
+</h3>
+<p style="font-size:.9rem;color:#555;margin-bottom:.8rem">Temperature: 21&deg;C (precisely controlled). Humidity: 45%. Ambient sound: keyboard clicks, centrifuge hum.</p>
+<ul>
+<li>Strict regulatory frameworks (ICH-GCP, FDA Part 11)</li>
+<li>Data must be attributable, legible, contemporaneous, original, and accurate</li>
+<li>Every action documented; every deviation investigated</li>
+<li>Fluorescent lighting; sensible footwear required</li>
+<li>Coffee consumption: industrial quantities</li>
+</ul>
+</div>
+<div class="habitat-card estate">
+<h3>
+<svg class="habitat-icon" viewBox="0 0 24 24"><path fill="#c9a84c" d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+The Libfeld Estate
+</h3>
+<p style="font-size:.9rem;color:#555;margin-bottom:.8rem">Temperature: warm (heated discussions). Humidity: variable. Ambient sound: overlapping opinions.</p>
+<ul>
+<li>75,000+ residential units constructed across the GTA</li>
+<li>Estimated dynasty value: $2&ndash;4 billion (pre-dissolution)</li>
+<li>Four brothers; zero consensus on business direction</li>
+<li>Court-ordered sale of entire empire</li>
+<li>Dinner conversation: unpredictable and legally sensitive</li>
+</ul>
+</div>
+</div>
+<div class="habitat-bridge">"The subject transitions between habitats with a fluidity that has baffled researchers. One moment she is reviewing adverse event reports; the next, she is navigating a family gathering where the phrase 'court-ordered' is used more frequently than 'please pass the salt.'"</div>
+</section>
+
+<!-- BEHAVIORAL OBSERVATIONS -->
+<section id="behavior">
+<div class="section-label">Section III &mdash; Behavioral Observations</div>
+<h2>Field Notes from the Research Team</h2>
+<p>Over a decade of careful observation has yielded a rich corpus of behavioral data. The following are selected entries from the field research log.</p>
+
+<div class="field-note">
+<div class="timestamp">Day 1,247 &mdash; 09:14 EST</div>
+<div class="observation">Subject was observed monitoring a Phase III clinical trial while simultaneously receiving a group text about a family property dispute. She responded to the CRA's query about a protocol deviation with the same measured tone she used to suggest "maybe we table this discussion until after Passover." Remarkable composure maintained throughout. Heart rate: estimated 62 BPM. Impressive.</div>
+<div class="researcher">&mdash; Dr. R. Fieldsworth, Lead Observer</div>
+</div>
+
+<div class="field-note">
+<div class="timestamp">Day 2,891 &mdash; 14:37 EST</div>
+<div class="observation">Subject demonstrated her signature "dual-processing" behavior: conducting a site monitoring visit (left hand taking notes on source data verification) while mentally drafting a diplomatic response to a family email chain that had devolved into a discussion about who said what at a 2016 Hanukkah dinner. Neither task suffered in quality. We remain astonished.</div>
+<div class="researcher">&mdash; Prof. M. Attenborough-Not-David, Behavioral Ecologist</div>
+</div>
+
+<div class="field-note">
+<div class="timestamp">Day 4,103 &mdash; 19:52 EST</div>
+<div class="observation">At a family gathering, subject was asked to explain her job. She described clinical trial monitoring. Four separate relatives nodded politely while clearly thinking about condominiums. Subject appeared unfazed. When later asked if she found this frustrating, she replied: "I work in regulatory compliance. I'm used to people not reading what I write." Devastating. Clinical. Perfect.</div>
+<div class="researcher">&mdash; Dr. J. Goodall-Adjacent, Primatology (Extended)</div>
+</div>
+
+<div class="field-note" id="secretTrigger" style="cursor:pointer" title="Click for classified intel">
+<div class="timestamp">Day 5,478 &mdash; CLASSIFIED</div>
+<div class="observation">Subject was observed exhibiting a rare behavior we have termed "effortless excellence." While colleagues require elaborate preparation to manage complex stakeholder dynamics, the subject appears to do so instinctively, as though navigating billion-dollar family politics since childhood had somehow prepared her for corporate environments. Correlation: highly suspected. Causation: we are still writing the grant proposal.</div>
+<div class="researcher">&mdash; [REDACTED], Classified Research Division</div>
+</div>
+</section>
+
+<!-- MIGRATION PATTERNS -->
+<section id="migration">
+<div class="section-label">Section IV &mdash; Migration Patterns</div>
+<h2>Tracking the Specimen's Journey</h2>
+<p>Like many migratory species, <em>S. libfeldius</em> follows a predictable pattern of movement toward increasingly complex professional ecosystems. GPS tracking data reveals the following migration route:</p>
+
+<div class="migration-path">
+<div class="migration-stop">
+<div class="migration-dot"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+<div class="migration-year">2007 &ndash; 2011</div>
+<div class="migration-place">University of Western Ontario</div>
+<div class="migration-desc">Schulich School of Medicine &amp; Dentistry. Here the young specimen earned her HBMSc in Medical Sciences, developing the foundational survival skills that would serve her in far more hostile environments. Notable achievement: learning to thrive on campus food.</div>
+</div>
+<div class="migration-stop">
+<div class="migration-dot"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+<div class="migration-year">2011 &ndash; 2015</div>
+<div class="migration-place">The Hospital for Sick Children (SickKids)</div>
+<div class="migration-desc">First major habitat. Subject embedded herself in one of Canada's most prestigious pediatric research institutions. Exposure to high-stakes clinical research began here. The specimen quickly demonstrated an unusual tolerance for paperwork &mdash; a trait that would prove decisive in later migrations.</div>
+</div>
+<div class="migration-stop">
+<div class="migration-dot"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+<div class="migration-year">2015 &ndash; 2019</div>
+<div class="migration-place">Axiom Real-Time Metrics</div>
+<div class="migration-desc">The specimen migrated to a clinical data management environment, expanding her range into eClinical technology. Here she developed advanced data-wrangling capabilities and a near-supernatural ability to spot a discrepancy in a 10,000-row spreadsheet at forty paces.</div>
+</div>
+<div class="migration-stop">
+<div class="migration-dot"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+<div class="migration-year">2019 &ndash; Present</div>
+<div class="migration-place">Ozmosis Research</div>
+<div class="migration-desc">Current nesting site. As Monitoring Manager, the specimen has reached apex predator status in the clinical trials ecosystem. She oversees study monitors, ensures regulatory compliance, and does it all with the calm authority of someone who has survived things far more chaotic than an FDA audit. Because she has.</div>
+</div>
+</div>
+</section>
+
+<!-- SURVIVAL ADAPTATIONS -->
+<section id="adaptations">
+<div class="section-label">Section V &mdash; Survival Adaptations</div>
+<h2>Evolutionary Advantages</h2>
+<p>Through years of exposure to both clinical research rigor and dynastic family dynamics, <em>S. libfeldius</em> has developed a suite of survival adaptations unmatched in the natural world.</p>
+<div class="adaptations-grid">
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+<h4>Dual-Spectrum Vision</h4>
+<p>The subject has developed an extraordinary ability to read both clinical data AND a room. Can detect a p-value anomaly and an awkward silence with equal precision.</p>
+</div>
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
+<h4>Diplomatic Immunity</h4>
+<p>Years of navigating family dynamics involving four brothers, a court-ordered dissolution, and contested billions have rendered her functionally immune to workplace conflict. Nothing in a boardroom will ever be that intense.</p>
+</div>
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+<h4>Regulatory Camouflage</h4>
+<p>Can make any document audit-ready in under 24 hours. SOPs, informed consent forms, monitoring reports &mdash; she handles them all with the quiet intensity of a predator stalking prey across a savannah of compliance requirements.</p>
+</div>
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+<h4>Temporal Efficiency</h4>
+<p>Has developed a compressed circadian rhythm allowing her to accomplish in one day what most specimens require a full week to complete. Researchers suspect she may experience time differently than the rest of us.</p>
+</div>
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+<h4>Multi-Stakeholder Processing</h4>
+<p>Can simultaneously manage the expectations of sponsors, CRAs, investigators, regulatory bodies, and family members who all believe their concern is the most urgent. Spoiler: it never is.</p>
+</div>
+<div class="adaptation-card">
+<div class="adaptation-icon"><svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg></div>
+<h4>Chaos Resistance</h4>
+<p>Prolonged exposure to the Libfeld family saga &mdash; the feuds, the court proceedings, the dissolution of a real estate empire built by a Holocaust survivor &mdash; has produced an organism with an extraordinarily high chaos threshold. An audit finding does not faze her. A protocol amendment does not faze her. Nothing fazes her.</p>
+</div>
+</div>
+</section>
+
+<!-- SPECIMEN TRACKER -->
+<section id="tracker">
+<div class="section-label">Interactive Element &mdash; Live Feed</div>
+<h2>Specimen Tracker</h2>
+<p>Our GPS-enabled bio-tag allows real-time monitoring of the specimen's location. Updated every 4 seconds.</p>
+<div class="tracker-box">
+<div class="tracker-header">
+<h3>Live Location Feed</h3>
+<div class="tracker-status" id="trackerStatus">SIGNAL: STRONG &bull; TRACKING ACTIVE</div>
+</div>
+<div class="tracker-visual">
+<div class="tracker-loc" id="locLab">
+<div class="icon"><svg width="40" height="40" viewBox="0 0 24 24"><path fill="#a8c5b2" d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+<div class="name">Clinical Research Lab</div>
+</div>
+<div class="tracker-arrow" id="trackerArrow">&#10140;</div>
+<div class="tracker-loc" id="locCondo">
+<div class="icon"><svg width="40" height="40" viewBox="0 0 24 24"><path fill="#a8c5b2" d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg></div>
+<div class="name">Luxury Residence</div>
+</div>
+</div>
+<div class="tracker-log" id="trackerLog"></div>
+</div>
+</section>
+
+<!-- THREAT ASSESSMENT -->
+<section id="threats">
+<div class="section-label">Section VI &mdash; Threat Assessment</div>
+<h2>Natural Predators &amp; Hazards</h2>
+<p>Despite her formidable adaptations, <em>S. libfeldius</em> faces a number of environmental threats. Our threat assessment team has catalogued the following:</p>
+
+<div class="threat-item">
+<div class="threat-level"><div class="level">8.7</div><div class="label">Severity</div></div>
+<div class="threat-info">
+<h4>The Regulatory Audit</h4>
+<p>Arrives without warning. Demands documentation for everything. Asks questions like "Can you walk me through your monitoring plan for visits 12 through 47?" Has been known to cause elevated cortisol levels in lesser specimens. <em>S. libfeldius</em>, however, has been observed greeting auditors with what researchers describe as "unsettling calmness."</p>
+</div>
+</div>
+<div class="threat-item">
+<div class="threat-level"><div class="level">9.4</div><div class="label">Severity</div></div>
+<div class="threat-info">
+<h4>Family Gatherings Where Someone Mentions "The Court Case"</h4>
+<p>Every dynasty has its fault lines. When a well-meaning relative casually references the court-ordered dissolution of a $2&ndash;4 billion real estate empire at the dinner table, the ambient tension increases by approximately 340%. The subject has developed a survival response we call "the graceful topic change" &mdash; executed so smoothly that most observers don't realize it has happened until dessert.</p>
+</div>
+</div>
+<div class="threat-item">
+<div class="threat-level"><div class="level">6.2</div><div class="label">Severity</div></div>
+<div class="threat-info">
+<h4>Monday Mornings</h4>
+<p>A universal threat. Even apex specimens are not fully immune. The subject has been observed requiring approximately 1.7 additional units of caffeine on Mondays. By 10:30 AM, full operational capacity is restored.</p>
+</div>
+</div>
+<div class="threat-item">
+<div class="threat-level"><div class="level">7.8</div><div class="label">Severity</div></div>
+<div class="threat-info">
+<h4>The Protocol Amendment (Version 14.0)</h4>
+<p>When a clinical trial protocol reaches its fourteenth amendment, something has gone profoundly wrong. The subject must re-train sites, update monitoring plans, revise informed consent forms, and pretend this is all perfectly normal. She does. Every time.</p>
+</div>
+</div>
+<div class="threat-item">
+<div class="threat-level"><div class="level">5.5</div><div class="label">Severity</div></div>
+<div class="threat-info">
+<h4>People Asking "So What Exactly Do You Do?"</h4>
+<p>A deceptively dangerous social predator. The subject must explain clinical trial monitoring to people whose primary frame of reference for medical research is Grey's Anatomy. She has never once responded with "It's like being a detective, but for spreadsheets," though researchers believe she has considered it.</p>
+</div>
+</div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz-section">
+<div class="section-label">Interactive Element &mdash; Knowledge Test</div>
+<h2>Clinical Trial or Family Drama?</h2>
+<p>The worlds of pharmaceutical regulation and dynastic real estate politics are more similar than you'd think. Can you identify the source of each scenario?</p>
+<div class="quiz-box">
+<h3>Identify the Source</h3>
+<div class="quiz-prompt" id="quizPrompt"></div>
+<div class="quiz-buttons">
+<button class="quiz-btn" onclick="answerQuiz('trial')">Clinical Trial</button>
+<button class="quiz-btn" onclick="answerQuiz('family')">Family Drama</button>
+<button class="quiz-btn" onclick="answerQuiz('both')">Both</button>
+</div>
+<div class="quiz-result" id="quizResult"></div>
+<div class="quiz-score" id="quizScore"></div>
+<div class="quiz-nav"><button onclick="nextQuiz()">Next Question &#8594;</button></div>
+</div>
+</section>
+
+<!-- FIELD NOTES GENERATOR -->
+<section id="generator">
+<div class="section-label">Interactive Element &mdash; Narration Engine</div>
+<h2>Field Notes Generator</h2>
+<p>Enter any scenario and receive a David Attenborough-style nature documentary narration of <em>S. libfeldius</em> handling it.</p>
+<div class="generator-box">
+<h3>Describe a Situation</h3>
+<textarea class="generator-input" id="genInput" rows="3" placeholder="e.g., 'Sammi has to explain a clinical hold to an impatient sponsor while her phone buzzes with family group chat notifications...'"></textarea>
+<button class="gen-btn" onclick="generateNarration()">Generate Field Notes</button>
+<div class="gen-output" id="genOutput"></div>
+</div>
+</section>
+
+<!-- CONSERVATION STATUS -->
+<section id="conservation">
+<div class="section-label">Section VII &mdash; Conservation Report</div>
+<h2>Population Assessment</h2>
+<div class="conservation-box">
+<div style="font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--green-pale)">International Union for the Conservation of Remarkable People</div>
+<div class="conservation-status">NOT ENDANGERED &mdash; THRIVING</div>
+<p>After extensive population surveys, field assessments, and longitudinal studies spanning over a decade, the IUCRP has determined that <em>Samanthus libfeldius</em> is a one-of-a-kind specimen with no risk of decline. If anything, the species appears to be getting stronger with each passing year.</p>
+<div class="population-stats">
+<div class="pop-stat"><div class="num">1</div><div class="lbl">Known Specimens</div></div>
+<div class="pop-stat"><div class="num">1</div><div class="lbl">Irreplaceable</div></div>
+<div class="pop-stat"><div class="num">75,000+</div><div class="lbl">Dynasty Units Built</div></div>
+<div class="pop-stat"><div class="num">&infin;</div><div class="lbl">Potential</div></div>
+</div>
+</div>
+</section>
+
+<!-- EXPERT TESTIMONIALS -->
+<section id="testimonials">
+<div class="section-label">Section VIII &mdash; Expert Analysis</div>
+<h2>Testimonials from the Field</h2>
+
+<div class="testimonial">
+<blockquote>In thirty years of studying high-performing organisms, I have never encountered a specimen with this range. She can pivot from reviewing an SAE narrative to discussing the Toronto condo market without so much as a change in breathing pattern. We tried to measure her stress response during a mock audit. The equipment malfunctioned. We later realized it was working fine &mdash; she simply wasn't stressed.</blockquote>
+<cite>&mdash; Dr. Helena Voss, Institute for Applied Human Excellence, Vienna</cite>
+</div>
+
+<div class="testimonial">
+<blockquote>Most organisms specialize. They choose a niche and exploit it. <em>S. libfeldius</em> looked at the concept of a niche and decided it was beneath her. She occupies multiple ecological zones simultaneously &mdash; clinical research, family diplomacy, project management, and whatever the social ecosystem of Toronto's elite requires on any given Tuesday evening. It shouldn't be possible. And yet.</blockquote>
+<cite>&mdash; Prof. Gerald Whitmore, Cambridge Behavioral Sciences Unit</cite>
+</div>
+
+<div class="testimonial">
+<blockquote>I was initially skeptical of the reports. An organism equally adapted to GCP compliance and navigating a family whose real estate empire was dissolved by court order? It read like fiction. Then I observed her in the wild for six weeks. I have since rewritten my entire theoretical framework. My publisher is furious. I am in awe.</blockquote>
+<cite>&mdash; Dr. Yuki Tanaka, Tokyo Institute of Exceptional Fauna</cite>
+</div>
+
+<div class="testimonial">
+<blockquote>We attempted to create a composite index measuring overall specimen capability. The algorithm kept returning an error because the values exceeded the expected range. We had to recalibrate the entire model. Twice.</blockquote>
+<cite>&mdash; Statistical Analysis Team, Global Wildlife Computing Centre, Zurich</cite>
+</div>
+</section>
+
+<!-- CLOSING -->
+<section id="closing" style="max-width:100%;padding:0">
+<div class="closing-card">
+<div class="closing-line">This concludes our documentary observation of <em>Samanthus libfeldius</em>, one of the most remarkable specimens ever catalogued by the scientific community.</div>
+<div class="closing-line">She continues to thrive in her dual habitats, defying conventional classification and inspiring researchers worldwide.</div>
+<div class="closing-main">"No Libfelds were harmed in the making of this documentary.<br>Though several were inconvenienced by court proceedings."</div>
+<div class="closing-small">A production of the Sammi Libfeld Appreciation Society &bull; Toronto, Canada &bull; Est. 2025</div>
+<div style="margin-top:2rem;color:#444;font-size:.75rem;font-family:var(--mono)">
+Dedicated to Teddy Libfeld (z"l), who built an empire from nothing,<br>and to Sammi, who builds something even harder to construct: a life that makes it all look easy.
+</div>
+</div>
+</section>
+
+<footer>
+<em>S. libfeldius</em> Field Guide &bull; Peer-reviewed by absolutely no one &bull; All observations are 100% scientifically rigorous*<br>
+<span style="font-size:.6rem">*They are not.</span>
+</footer>
+
+<!-- SECRET EASTER EGG POPUP -->
+<div class="secret-overlay" id="secretOverlay" onclick="closeSecret()"></div>
+<div class="secret-dossier" id="secretDossier">
+<h3>CLASSIFIED DOSSIER</h3>
+<p style="font-family:var(--mono);font-size:.7rem;color:var(--red-muted);letter-spacing:.2em">CLEARANCE LEVEL: OMEGA</p>
+<p style="margin-top:1rem">Additional field observation: Subject has been seen laughing at her own situation with genuine delight. This suggests a rare meta-cognitive adaptation &mdash; the ability to find the absurdity in occupying two wildly different worlds and <em>enjoying</em> it.</p>
+<p>Classification: <strong>Legend</strong>.</p>
+<button class="secret-close" onclick="closeSecret()">Seal Dossier</button>
+</div>
+
+<script>
+// Console Easter Egg
+console.log("%c This documentary was produced by the Sammi Libfeld Appreciation Society, a subsidiary of Definitely Not Her Husband's AI Assistant", "background:#2d4a2e;color:#c9a84c;padding:10px;font-size:14px;font-family:Georgia,serif");
+console.log("%c No clinical data was harmed in the making of this website.", "color:#6b9b7a;font-size:11px");
+
+// Entry dismiss
+function dismissEntry(){
+document.getElementById('entry').classList.add('dismissed');
+document.body.style.overflow='auto';
+setTimeout(()=>{document.getElementById('entry').style.display='none'},1300);
+}
+document.body.style.overflow='hidden';
+
+// Nav show on scroll
+const nav=document.getElementById('mainNav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('visible',window.scrollY>100)});
+
+// Scroll reveal
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('revealed')})},{threshold:0.1});
+document.querySelectorAll('section').forEach(s=>observer.observe(s));
+// Migration stops
+const migObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('revealed')})},{threshold:0.2});
+document.querySelectorAll('.migration-stop').forEach((s,i)=>{s.style.transitionDelay=i*0.2+'s';migObs.observe(s)});
+
+// SPECIMEN TRACKER
+const locations=[
+{loc:'lab',msg:'Subject reviewing monitoring visit reports. Third coffee detected.'},
+{loc:'lab',msg:'Subject on a call with a clinical site. Polite but firm tone noted.'},
+{loc:'condo',msg:'Subject has returned to the residential habitat. Transitioning to family mode.'},
+{loc:'lab',msg:'Source data verification in progress. Subject appears to be in a state of flow.'},
+{loc:'condo',msg:'Subject navigating a family dinner. Diplomatic protocols engaged.'},
+{loc:'lab',msg:'Regulatory submission deadline approaching. Subject\'s typing speed has increased 40%.'},
+{loc:'condo',msg:'Subject observed enjoying a moment of peace. Researchers are documenting this rare event.'},
+{loc:'lab',msg:'Training a new CRA. Subject demonstrating the patience of a seasoned wildlife rehabilitator.'},
+{loc:'condo',msg:'Family group chat active. Subject has read all messages. Has replied to none. Strategic.'},
+{loc:'lab',msg:'Subject has found a discrepancy in the data. Her eyes narrowed by 2mm. The site will hear about this.'}
+];
+let trackerIdx=0;
+function updateTracker(){
+const item=locations[trackerIdx%locations.length];
+const lab=document.getElementById('locLab'),condo=document.getElementById('locCondo'),arrow=document.getElementById('trackerArrow');
+lab.classList.toggle('active',item.loc==='lab');
+condo.classList.toggle('active',item.loc==='condo');
+arrow.classList.toggle('flip',item.loc==='condo');
+const log=document.getElementById('trackerLog');
+const now=new Date();
+const ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+log.innerHTML='<p>['+ts+'] '+item.msg+'</p>'+log.innerHTML;
+if(log.children.length>8)log.removeChild(log.lastChild);
+trackerIdx++;
+}
+updateTracker();
+setInterval(updateTracker,4000);
+
+// QUIZ
+const quizData=[
+{q:"Multiple parties could not reach consensus after months of deliberation, resulting in an independent adjudicator being brought in to resolve the dispute.",a:"both",explain:"Protocol disagreements AND the Libfeld brothers' feud both ended up requiring outside intervention."},
+{q:"Sensitive documents were reviewed by an ethics committee to ensure all parties were treated fairly and with full informed consent.",a:"trial",explain:"That's an Institutional Review Board / Research Ethics Board. Though honestly, the family could have used one too."},
+{q:"A large-scale operation involving billions of dollars was shut down due to irreconcilable differences among key stakeholders.",a:"family",explain:"The Conservatory Group, valued at $2-4 billion, was dissolved by court order. Though some Phase III trials have come close."},
+{q:"Monitors were dispatched to verify that all activities were conducted according to the approved plan and applicable regulations.",a:"trial",explain:"Clinical Research Associates (monitors) visit sites to ensure compliance. The Libfeld family had lawyers for that."},
+{q:"Despite years of successful outcomes, internal disagreements ultimately proved more destructive than any external threat.",a:"both",explain:"True of failed clinical programs AND the Conservatory Group. The enemy is always inside the house."},
+{q:"A detailed report was filed documenting every deviation from the expected protocol, with corrective actions mandated within 30 days.",a:"trial",explain:"That's a monitoring visit report. The family's deviations were documented in court filings instead."},
+{q:"The founder's original vision was celebrated by all parties, even as they fundamentally disagreed on how to carry it forward.",a:"family",explain:"Teddy Libfeld built the empire from nothing. His sons honored his legacy while being unable to work together to preserve it."},
+{q:"Participants were enrolled across multiple sites, each with their own interpretation of the master agreement.",a:"both",explain:"Multi-site clinical trials AND multi-property real estate empires both suffer from this exact problem."}
+];
+let quizIdx=0,quizCorrect=0,quizTotal=0;
+function showQuiz(){
+document.getElementById('quizPrompt').textContent=quizData[quizIdx%quizData.length].q;
+document.getElementById('quizResult').textContent='';
+document.querySelectorAll('.quiz-btn').forEach(b=>{b.classList.remove('correct','wrong');b.disabled=false});
+}
+showQuiz();
+function answerQuiz(ans){
+const d=quizData[quizIdx%quizData.length];
+quizTotal++;
+const btns=document.querySelectorAll('.quiz-btn');
+btns.forEach(b=>{
+b.disabled=true;
+const val=b.textContent==='Clinical Trial'?'trial':b.textContent==='Family Drama'?'family':'both';
+if(val===d.a)b.classList.add('correct');
+else if(val===ans&&ans!==d.a)b.classList.add('wrong');
+});
+if(ans===d.a)quizCorrect++;
+document.getElementById('quizResult').innerHTML=(ans===d.a?'<strong>Correct.</strong> ':'<strong>Not quite.</strong> ')+d.explain;
+document.getElementById('quizScore').textContent='Score: '+quizCorrect+'/'+quizTotal;
+}
+function nextQuiz(){quizIdx++;showQuiz()}
+
+// FIELD NOTES GENERATOR
+const templates=[
+"And here we observe {name} in her natural environment, confronted with {situation}. Watch closely. Note the slight tilt of the head — a sign she is processing multiple variables simultaneously. Lesser specimens would falter. She does not. With the precision of a surgeon and the composure of someone who has survived far worse at a holiday dinner table, she addresses the situation methodically. First, she assesses. Then, she prioritizes. Then, she executes. The entire process takes approximately ninety seconds. Remarkable.",
+"The researchers fall silent as {name} encounters {situation}. This is a critical moment. In the wild, many specimens would exhibit signs of distress — elevated heart rate, visible agitation, perhaps an ill-advised email sent in haste. But {name} displays none of these. Instead, she activates what we have termed her 'dual-cortex response': one hemisphere manages the immediate crisis while the other is already planning three steps ahead. By the time her colleagues realize there was a problem, she has already solved it and moved on to her next task. Extraordinary.",
+"Footage captured at 14:32 EST shows {name} navigating {situation} with a level of grace that has left our research team genuinely speechless. She begins with a measured assessment — gathering data, consulting stakeholders, and filtering out noise with the efficiency of a clinical data management system. Then comes the execution: swift, precise, and utterly devoid of panic. Our lead behavioral ecologist has described this as 'the most impressive adaptive response I have witnessed in thirty years of fieldwork.' We see no reason to disagree.",
+"A hush falls over the observation deck. {name} has been presented with {situation}. The team exchanges glances. Surely this will be the moment she shows strain? But no. She adjusts her approach in real-time, reallocating cognitive resources with the seamlessness of someone switching between browser tabs — except the tabs are a regulatory crisis and a family obligation, and both are on fire. Within minutes, the situation is resolved. She reaches for her coffee. The researchers begin writing the next chapter of their field guide. It will need to be significantly longer than anticipated."
+];
+function generateNarration(){
+const input=document.getElementById('genInput').value.trim();
+if(!input)return;
+const template=templates[Math.floor(Math.random()*templates.length)];
+const output=template.replace(/{name}/g,'<em>S. libfeldius</em>').replace(/{situation}/g,'"'+input+'"');
+const el=document.getElementById('genOutput');
+el.innerHTML=output;
+el.style.display='block';
+}
+
+// SECRET EASTER EGG - click on classified field note
+document.getElementById('secretTrigger').addEventListener('click',function(){
+document.getElementById('secretOverlay').classList.add('show');
+document.getElementById('secretDossier').classList.add('show');
+});
+function closeSecret(){
+document.getElementById('secretOverlay').classList.remove('show');
+document.getElementById('secretDossier').classList.remove('show');
+}
+
+// Konami-ish: typing "sammi" anywhere triggers a brief flash
+let secretBuffer='';
+document.addEventListener('keydown',function(e){
+secretBuffer+=e.key.toLowerCase();
+if(secretBuffer.length>10)secretBuffer=secretBuffer.slice(-10);
+if(secretBuffer.includes('sammi')){
+secretBuffer='';
+document.body.style.transition='background .3s';
+document.body.style.background='#c9a84c';
+setTimeout(()=>{document.body.style.background='var(--parchment)'},300);
+}
+});
+</script>
+</body>
+</html>
